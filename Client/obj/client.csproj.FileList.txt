@@ -1,9 +1,0 @@
-obj\Debug\ResolveAssemblyReference.cache
-obj\Debug\client.csproj.GenerateResource.Cache
-bin\Debug\Interface.dll
-bin\Debug\Interface.pdb
-bin\Debug\Client.exe
-bin\Debug\Client.pdb
-obj\Debug\Client.Properties.Resources.resources
-obj\Debug\Client.exe
-obj\Debug\Client.pdb

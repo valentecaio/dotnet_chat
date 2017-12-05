@@ -30,16 +30,25 @@ namespace remoteServer
 		{
 			return null;
 		}
-		
 
-		#region members of Interface
+        #region members of Interface
 
-		public string Hello()
+        public string TextMessage()
 		{
 			// TODO : implement
 			return "The message was received by the server" ;
 		}
 
-		#endregion
-	}
+        public string Login()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Logout()
+        {
+            throw new NotImplementedException();
+        }
+        
+        #endregion
+    }
 }
