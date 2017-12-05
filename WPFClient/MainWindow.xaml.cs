@@ -44,23 +44,26 @@ namespace WPFClient
 
         private void btSend_Click(object sender, RoutedEventArgs e)
         {
-            // launch remote method
-            this.tbUsername.Text = this.client.strRemote.TextMessage();
+            this.client.sendMessage(this.tbSend.Text);
         }
 
         private void btConfApply_Click(object sender, RoutedEventArgs e)
         {
-
+            this.client.name = this.tbUsername.Text;
+            this.client.serverPort = this.tbServerPort.Text;
+            this.client.serverHost = this.tbServerIP.Text;
         }
 
         private void btConfReset_Click(object sender, RoutedEventArgs e)
         {
-
+            this.tbUsername.Text = this.client.name;
+            this.tbServerPort.Text = this.client.serverPort;
+            this.tbServerIP.Text = this.client.serverHost;
         }
 
         private void menuLogin_Click(object sender, RoutedEventArgs e)
         {
-
+            //this.client.connect();
         }
 
         private void menuLogout_Click(object sender, RoutedEventArgs e)

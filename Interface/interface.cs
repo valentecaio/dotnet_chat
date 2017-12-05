@@ -7,7 +7,7 @@ namespace RemotingInterface
 	/// </summary>
 	public interface IRemoteString
 	{
-        string TextMessage();
+        void TextMessage(string msg);
         string Login();
         string Logout();
     }

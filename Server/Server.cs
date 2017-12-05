@@ -31,12 +31,16 @@ namespace remoteServer
 			return null;
 		}
 
+        public void broadcast(string msg)
+        {
+
+        }
+
         #region members of Interface
 
-        public string TextMessage()
+        public void TextMessage(string msg)
 		{
-			// TODO : implement
-			return "The message was received by the server" ;
+            broadcast(msg);
 		}
 
         public string Login()
