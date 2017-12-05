@@ -8,8 +8,8 @@
     <ProjectGuid>{417CE9C7-AF5C-4DAC-8AC4-38E1BCFED9AE}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Serveur</RootNamespace>
-    <AssemblyName>Serveur</AssemblyName>
+    <RootNamespace>Server</RootNamespace>
+    <AssemblyName>Server</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
