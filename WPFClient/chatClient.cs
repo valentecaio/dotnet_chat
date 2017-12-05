@@ -13,6 +13,7 @@ namespace WPFClient
         private string SEPARATOR = "_$_";
         private string RECEIVE = "RECEIVE";
         private string SEND = "SEND";
+        private string CONNECT = "CONNECT";
 
         #region variables
 
@@ -21,21 +22,17 @@ namespace WPFClient
         public string name;
         public List<Interface.User> usersList = new List<Interface.User>();
         public RemotingInterface.IRemoteString server;
+        public TcpChannel channel;
 
         #endregion
 
         public chatClient()
         {
-            // create a receptor TCP channel
-            TcpChannel canal = new TcpChannel();
+            // create a receiver TCP channel
+            this.channel = new TcpChannel();
 
             // register channnel
-            ChannelServices.RegisterChannel(canal);
-
-            // get server objet reference
-            // input: server URL (tcp://<server ip>:<server port>/<server class>) and interface name
-            this.server = (RemotingInterface.IRemoteString)Activator.GetObject(
-                typeof(RemotingInterface.IRemoteString), "tcp://localhost:12345/Server");
+            ChannelServices.RegisterChannel(channel);
         }
 
         public void sendMessage(string text)
@@ -49,6 +46,19 @@ namespace WPFClient
             this.server.TextMessage(msg);
         }
 
+        public void connect()
+        {
+            // get server objet reference
+            // input: server URL (tcp://<server ip>:<server port>/<server class>) and interface name
+            string serverURL = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
+            this.server = (RemotingInterface.IRemoteString)Activator.GetObject(
+                typeof(RemotingInterface.IRemoteString), serverURL);
+
+            this.server.Login(this.name);
+
+            Console.WriteLine(CONNECT + " with name " + this.name);
+        }
+
         #region Interface
 
         public void TextMessage(string msg)
@@ -56,7 +66,7 @@ namespace WPFClient
             Console.WriteLine(RECEIVE + " msg " + msg);
         }
 
-        public string Login()
+        public void Login(string username)
         {
             throw new NotImplementedException();
         }

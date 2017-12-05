@@ -63,7 +63,7 @@ namespace WPFClient
 
         private void menuLogin_Click(object sender, RoutedEventArgs e)
         {
-            //this.client.connect();
+            this.client.connect();
         }
 
         private void menuLogout_Click(object sender, RoutedEventArgs e)

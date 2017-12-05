@@ -63,7 +63,7 @@
                     </DockPanel>
                     <DockPanel>
                         <TextBlock TextWrapping="Wrap" Text="Server Port:" Margin="5" HorizontalAlignment="Left"/>
-                        <TextBox Name="tbServerPort" TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
+                        <TextBox Name="tbServerPort" TextWrapping="Wrap" Text="12345" Margin="5" Width="150" HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel>
                         <TextBlock TextWrapping="Wrap" Text="User Name:" Margin="5" HorizontalAlignment="Left"/>
