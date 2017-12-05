@@ -6,6 +6,81 @@
         xmlns:local="clr-namespace:WPFClient"
         mc:Ignorable="d"
         Title="Client" Height="600" Width="800">
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Login" Width="60"/>
+            <MenuItem Header="Logout" Width="60"/>
+            <MenuItem Header="Quit" Width="60"/>
+        </Menu>
+        
+        <StackPanel Margin="10">
+            <Border BorderThickness="1" BorderBrush="Black" Margin="10" Height="400" Width="400"  HorizontalAlignment="Left">
+                <StackPanel>
+                    <TextBlock TextWrapping="Wrap" Text="Messages" Margin="10" HorizontalAlignment="Center"/>
+                    <ListView Name="lvMessages" Height="380">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Sender" Width="115" DisplayMemberBinding="{Binding Sender}" />
+                                <GridViewColumn Header="Message" Width="280" DisplayMemberBinding="{Binding Message}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                </StackPanel>
+            </Border>
+
+            <DockPanel>
+                <TextBox TextWrapping="Wrap" Margin="10" Height="80" Width="300" HorizontalAlignment="Left"/>
+                <Button Name="btSend" Margin="10" Height="80" Width="80" HorizontalAlignment="Right">
+                    <TextBlock Text="Send" FontSize="24"/>
+                </Button>
+            </DockPanel>
+        </StackPanel>
+
+        <StackPanel Margin="10">
+            <Border BorderThickness="1" BorderBrush="Black" Margin="10" Height="320" Width="300"  HorizontalAlignment="Right" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock TextWrapping="Wrap" Text="Online Users" Margin="10" HorizontalAlignment="Center"/>
+                    <ListView Name="lvUsers">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Name" Width="115" DisplayMemberBinding="{Binding Name}" />
+                                <GridViewColumn Header="IP" Width="115" DisplayMemberBinding="{Binding Ip}" />
+                                <GridViewColumn Header="Port" Width="60" DisplayMemberBinding="{Binding Port}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+            </Border>
+            <Border BorderThickness="1" BorderBrush="Black" Margin="10" Height="170" Width="300"  HorizontalAlignment="Right" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock TextWrapping="Wrap" Text="Configuration" Margin="10" HorizontalAlignment="Center"/>
+                    <DockPanel>
+                        <TextBlock TextWrapping="Wrap" Text="Server IP:" Margin="5" HorizontalAlignment="Left"/>
+                        <TextBox TextWrapping="Wrap" Text="localhost" Margin="5" Width="150" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock TextWrapping="Wrap" Text="User Port:" Margin="5" HorizontalAlignment="Left"/>
+                        <TextBox TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock TextWrapping="Wrap" Text="User Name:" Margin="5" HorizontalAlignment="Left"/>
+                        <TextBox TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <Button Name="btConfApply" Margin="5" Width="100" HorizontalAlignment="Center">
+                            <TextBlock Text="Apply" FontSize="14"/>
+                        </Button>
+                        <Button Name="btConfReset" Margin="5" Width="100" HorizontalAlignment="Right">
+                            <TextBlock Text="Reset" FontSize="14"/>
+                        </Button>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </DockPanel>
+
     
-    
+
 </Window>
