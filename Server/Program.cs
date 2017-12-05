@@ -6,7 +6,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 namespace remoteServer
 {
-	public class Server : MarshalByRefObject, RemotingInterface.RemoteInterfaceString
+	public class Server : MarshalByRefObject, RemotingInterface.IRemoteString
 	{
 		static void Main()
 		{

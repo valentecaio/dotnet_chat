@@ -21,7 +21,7 @@ namespace Client
 		private System.Windows.Forms.Button bt;
 		private System.ComponentModel.Container components = null;
 
-		private RemotingInterface.RemoteInterfaceString strRemote ;
+		private RemotingInterface.IRemoteString strRemote ;
 
 
 		public Client()
@@ -36,8 +36,8 @@ namespace Client
 
 			// get server objet reference
 			// needs: server URL (tcp://<server ip>:<server port>/<server class>) and interface name
-			this.strRemote = (RemotingInterface.RemoteInterfaceString)Activator.GetObject(
-				typeof (RemotingInterface.RemoteInterfaceString), "tcp://localhost:12345/Server");
+			this.strRemote = (RemotingInterface.IRemoteString)Activator.GetObject(
+				typeof (RemotingInterface.IRemoteString), "tcp://localhost:12345/Server");
 		}
 
 		protected override void Dispose( bool disposing )
@@ -66,24 +66,25 @@ namespace Client
             // zone
             // 
             this.zone.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.zone.Location = new System.Drawing.Point(24, 24);
+            this.zone.Location = new System.Drawing.Point(12, 418);
+            this.zone.Multiline = true;
             this.zone.Name = "zone";
-            this.zone.Size = new System.Drawing.Size(440, 31);
+            this.zone.Size = new System.Drawing.Size(440, 57);
             this.zone.TabIndex = 0;
             // 
             // bt
             // 
-            this.bt.Location = new System.Drawing.Point(184, 72);
+            this.bt.Location = new System.Drawing.Point(458, 418);
             this.bt.Name = "bt";
-            this.bt.Size = new System.Drawing.Size(104, 40);
+            this.bt.Size = new System.Drawing.Size(68, 57);
             this.bt.TabIndex = 1;
-            this.bt.Text = "Lancer";
+            this.bt.Text = "Send";
             this.bt.Click += new System.EventHandler(this.bt_Click);
             // 
             // Client
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(488, 142);
+            this.ClientSize = new System.Drawing.Size(845, 487);
             this.Controls.Add(this.bt);
             this.Controls.Add(this.zone);
             this.Name = "Client";
