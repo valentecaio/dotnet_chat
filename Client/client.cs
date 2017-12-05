@@ -13,35 +13,31 @@ using System.Runtime.Remoting.Channels.Tcp;
 namespace Client
 {
 	/// <summary>
-	/// Description résumée de Form1.
 	/// </summary>
 	public class Client : System.Windows.Forms.Form
 	{
 			
 		private System.Windows.Forms.TextBox zone;
 		private System.Windows.Forms.Button bt;
-		/// <summary>
-		/// Variable nécessaire au concepteur.
-		/// </summary>
 		private System.ComponentModel.Container components = null;
 
-		private RemotingInterface.IRemotChaine LeRemot ;
+		private RemotingInterface.RemoteInterfaceString strRemote ;
 
 
 		public Client()
 		{
 			InitializeComponent();
 
-			// création d'un canal recepteur TCP
+			// create a receptor TCP channel
 			TcpChannel canal = new TcpChannel();
 
-			// enregistrement du canal
+			// register channnel
 			ChannelServices.RegisterChannel(canal);
 
-			// l'ojet LeRemot  récupére ici la référence de l'objet du serveur
-			// on donne l'URI (serveur, port, classe du serveur)  et le nom de l'interface
-			LeRemot = (RemotingInterface.IRemotChaine)Activator.GetObject(
-				typeof (RemotingInterface.IRemotChaine), "tcp://localhost:12345/Serveur");
+			// get server objet reference
+			// needs: server URL (tcp://<server ip>:<server port>/<server class>) and interface name
+			this.strRemote = (RemotingInterface.RemoteInterfaceString)Activator.GetObject(
+				typeof (RemotingInterface.RemoteInterfaceString), "tcp://localhost:12345/Server");
 		}
 
 		protected override void Dispose( bool disposing )
@@ -97,10 +93,7 @@ namespace Client
 
 		}
 		#endregion
-
-		/// <summary>
-		/// Point d'entrée principal de l'application.
-		/// </summary>
+        
 		[STAThread]
 		/*static void Main() 
 		{
@@ -110,8 +103,8 @@ namespace Client
 
 		private void bt_Click(object sender, System.EventArgs e)
 		{
-			// on lance la méthode remote
-			zone.Text = LeRemot.Hello() ;
+			// launch remote method
+			zone.Text = this.strRemote.Hello() ;
 		}
 	}
 }
