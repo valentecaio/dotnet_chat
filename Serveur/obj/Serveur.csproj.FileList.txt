@@ -1,0 +1,7 @@
+obj\Debug\ResolveAssemblyReference.cache
+bin\Debug\Serveur.exe
+bin\Debug\Serveur.pdb
+bin\Debug\Interface.dll
+bin\Debug\Interface.pdb
+obj\Debug\Serveur.exe
+obj\Debug\Serveur.pdb
