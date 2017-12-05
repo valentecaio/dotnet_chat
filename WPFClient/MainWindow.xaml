@@ -9,9 +9,10 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Login" Width="60"/>
-            <MenuItem Header="Logout" Width="60"/>
-            <MenuItem Header="Quit" Width="60"/>
+            <MenuItem Name="menuLogin" Header=" Login " Click="menuLogin_Click"/>
+            <MenuItem Name="menuLogout" Header=" Logout " Click="menuLogout_Click"/>
+            <MenuItem Name="menuTestServer" Header=" Test Server " Click="menuTestServer_Click"/>
+            <MenuItem Name="menuQuit" Header=" Quit " Click="menuQuit_Click"/>
         </Menu>
         
         <StackPanel Margin="10">
@@ -32,7 +33,7 @@
 
             <DockPanel>
                 <TextBox TextWrapping="Wrap" Margin="10" Height="80" Width="300" HorizontalAlignment="Left"/>
-                <Button Name="btSend" Margin="10" Height="80" Width="80" HorizontalAlignment="Right">
+                <Button Name="btSend" Margin="10" Height="80" Width="80" HorizontalAlignment="Right" Click="btSend_Click">
                     <TextBlock Text="Send" FontSize="24"/>
                 </Button>
             </DockPanel>
@@ -66,13 +67,13 @@
                     </DockPanel>
                     <DockPanel>
                         <TextBlock TextWrapping="Wrap" Text="User Name:" Margin="5" HorizontalAlignment="Left"/>
-                        <TextBox TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
+                        <TextBox Name="tbUsername" TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel>
-                        <Button Name="btConfApply" Margin="5" Width="100" HorizontalAlignment="Center">
+                        <Button Name="btConfApply" Margin="5" Width="100" HorizontalAlignment="Center" Click="btConfApply_Click">
                             <TextBlock Text="Apply" FontSize="14"/>
                         </Button>
-                        <Button Name="btConfReset" Margin="5" Width="100" HorizontalAlignment="Right">
+                        <Button Name="btConfReset" Margin="5" Width="100" HorizontalAlignment="Right" Click="btConfReset_Click">
                             <TextBlock Text="Reset" FontSize="14"/>
                         </Button>
                     </DockPanel>

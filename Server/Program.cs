@@ -16,7 +16,7 @@ namespace remoteServer
 			// register channel
 			ChannelServices.RegisterChannel(canal);
 
-			// Start server listning in a Singleton object
+			// Start server listenning in a Singleton object
 			RemotingConfiguration.RegisterWellKnownServiceType(
 				typeof(Server), "Server",  WellKnownObjectMode.Singleton);
 
@@ -32,12 +32,12 @@ namespace remoteServer
 		}
 		
 
-		#region members of RemoteInterfaceString
+		#region members of Interface
 
 		public string Hello()
 		{
 			// TODO : implement
-			return "The string was received in the server" ;
+			return "The message was received by the server" ;
 		}
 
 		#endregion
