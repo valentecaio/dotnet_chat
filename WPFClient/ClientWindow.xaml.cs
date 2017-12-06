@@ -269,11 +269,17 @@ namespace WPFClient
             if (!connected)
                 return;
 
-            // First remove the event
-            remoteServer.MessageArrived -= eventProxy.LocallyHandleMessageArrived;
+            try
+            {
+                // First remove the event
+                remoteServer.MessageArrived -= eventProxy.LocallyHandleMessageArrived;
 
-            // broadcast disconnect message
-            remoteServer.Unsubscribe(this.username);
+                // broadcast disconnect message
+                remoteServer.Unsubscribe(this.username);
+            } catch (Exception ex)
+            {
+                Console.WriteLine("error when disconnection: " + ex.ToString());
+            }
 
             // empty users table
             this.usersList.Clear();

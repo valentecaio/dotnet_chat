@@ -13,16 +13,63 @@ namespace remoteServer
     {
         #region program
 
-        static Server server = new Server();
+        private static Server server = new Server();
+
+        private static string CMD_HELP = "HELP";
+        private static string CMD_START = "START";
+        private static string CMD_STOP = "STOP";
+        private static string CMD_QUIT = "QUIT";
+        private static string CMD_LIST = "LIST";
 
         static void Main()
         {
-            server.StartServer();
+            Console.Title = "Server Manager";
 
-            // keep console alive
-            Console.Title = "Server";
-            Console.WriteLine("Server started");
-            Console.ReadLine();
+            string default_msg = "Type " + CMD_HELP + " to list available commands.";
+            Console.WriteLine("Server Manager launched.");
+
+            string cmd = "";
+            while (cmd != CMD_QUIT)
+            {
+                if (cmd == CMD_HELP) {
+                    Console.WriteLine("That's a server manager interface. " +
+                        "These are the available commands:\n\n"
+                        + CMD_LIST + "\tShow the list of clients of this server.\n"
+                        + CMD_START + "\tStart server on localhost.\n"
+                        + CMD_STOP + "\tStop an active server.\n"
+                        + CMD_QUIT + "\tClose manager.\n"
+                        + CMD_HELP + "\tShow this message.");
+                } else if (cmd == CMD_START) {
+                    if (server.serverActive) {
+                        Console.WriteLine("The server is already active.\n" + default_msg);
+                    } else {
+                        server.StartServer();
+                        Console.WriteLine("Server started.");
+                    }
+                } else if (cmd == CMD_STOP) {
+                    if (!server.serverActive) {
+                        Console.WriteLine("The server is already stopped.\n" + default_msg);
+                    } else {
+                        server.StopServer();
+                        Console.WriteLine("Server stopped.");
+                    }
+                } else if (cmd == CMD_LIST) {
+                    if (!server.serverActive)
+                        Console.WriteLine("The server is not active.\n" + default_msg);
+                    else {
+                        Console.Write("Users: [ ");
+                        foreach (string user in server.usersList)
+                            Console.Write(user + ", ");
+                        Console.WriteLine(" ]");
+                    }
+                } else {
+                    Console.WriteLine(default_msg);
+                }
+
+                // get next command
+                Console.Write("\n>> ");
+                cmd = Console.ReadLine();
+            }
         }
 
         #endregion
@@ -35,9 +82,8 @@ namespace remoteServer
             private int tcpPort = 12345;
             private ObjRef internalRef;
 
-            private bool serverActive = false;
-
-            private List<string> usersList = new List<string>();
+            public bool serverActive = false;
+            public List<string> usersList = new List<string>();
 
             #endregion
 
