@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
+using Common;
 
 namespace remoteServer
 {
@@ -22,7 +23,7 @@ namespace remoteServer
             Console.ReadLine();
         }
 
-        public class Server : MarshalByRefObject, RemotingInterface.IServerObject
+        public class Server : MarshalByRefObject, IServerObject
         {
             #region Variables
 
@@ -46,7 +47,7 @@ namespace remoteServer
 
             public event MessageArrivedEvent MessageArrived;
 
-            public void PublishMessage(string Message)
+            public void PublishMessage(Message Message)
             {
                 SafeInvokeMessageArrived(Message);
             }
@@ -103,7 +104,7 @@ namespace remoteServer
                 }
             }
 
-            private void SafeInvokeMessageArrived(string Message)
+            private void SafeInvokeMessageArrived(Message Message)
             {
                 if (!serverActive)
                     return;
@@ -137,7 +138,6 @@ namespace remoteServer
             {
                 return null;
             }
-            
         }
     }
 }

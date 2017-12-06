@@ -1,4 +1,5 @@
-﻿using RemotingInterface;
+﻿using Common;
+using RemotingInterface;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,7 +28,7 @@ namespace Interface
 
         #region Local Handlers
 
-        public void LocallyHandleMessageArrived(string Message)
+        public void LocallyHandleMessageArrived(Message Message)
         {
             if (MessageArrived != null)
                 MessageArrived(Message);

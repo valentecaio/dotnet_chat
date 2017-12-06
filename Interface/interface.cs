@@ -1,3 +1,4 @@
+using Common;
 using System;
 
 namespace RemotingInterface
@@ -6,7 +7,7 @@ namespace RemotingInterface
     /// this interface contains all the distributed methods
     /// </summary>
 
-    public delegate void MessageArrivedEvent(string Message);
+    public delegate void MessageArrivedEvent(Message Message);
 
     public interface IRemoteString
     {
@@ -25,7 +26,7 @@ namespace RemotingInterface
 
         #region Methods
 
-        void PublishMessage(string Message);
+        void PublishMessage(Message msg);
 
         #endregion
     }

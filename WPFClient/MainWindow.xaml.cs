@@ -42,7 +42,7 @@ namespace WPFClient
         BinaryServerFormatterSinkProvider serverProv;
         private bool connected = false;
 
-        private delegate void SetBoxText(string Message);
+        private delegate void appendMessageListView(Message Message);
 
         #endregion
 
@@ -120,17 +120,17 @@ namespace WPFClient
         #region UI changes
 
         // fake function, temporally
-        private void SetTextBox(string msg)
+        private void appendMessage(Message msg)
         {
             if (!Application.Current.Dispatcher.CheckAccess())
             {
-                Application.Current.Dispatcher.BeginInvoke(new SetBoxText(SetTextBox), new object[] { msg });
+                Application.Current.Dispatcher.BeginInvoke(new appendMessageListView(appendMessage), new object[] { msg });
                 return;
             }
             else
             {
                 Console.WriteLine("SetTextBox: " + msg);
-                this.lvMessages.Items.Add(new Message { sender = "aaa: ", msg = msg });
+                this.lvMessages.Items.Add(msg);
             }
         }
 
@@ -138,9 +138,9 @@ namespace WPFClient
 
         #region server interaction
 
-        void eventProxy_MessageArrived(string Message)
+        void eventProxy_MessageArrived(Message Message)
         {
-            SetTextBox(Message);
+            appendMessage(Message);
         }
 
         public void sendMessage(string text)
@@ -148,11 +148,12 @@ namespace WPFClient
             if (!connected)
                 return;
 
-            // encode message
-            string msg = this.clientName + SEPARATOR + text;
+            // broadcast message
+            Message msg = new Message { sender = this.clientName, msg = text };
             remoteServer.PublishMessage(msg);
 
-            Console.WriteLine(SEND + " msg " + msg);
+            // empty message textBox
+            tbSend.Text = "";
         }
 
         public void connect()
@@ -164,16 +165,15 @@ namespace WPFClient
 
             try
             {
-                // get server objet reference
-                // input: server URL (tcp://<server ip>:<server port>/<server class>) and interface name
-                string serverURL = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
+                // server URL (tcp://<server ip>:<server port>/<server class>) and interface name
+                string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
 
-                remoteServer = (RemotingInterface.IServerObject)Activator.GetObject(
-                typeof(RemotingInterface.IServerObject), serverURL);
-                remoteServer.PublishMessage("Client " + this.clientName + " Connected");
-                //This is where it will break if we didn't connect
+                // broadcast new connection
+                remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
+                Message msg = new Message { sender = "SERVER", msg = "Client " + this.clientName + " connected" };
+                remoteServer.PublishMessage(msg);
 
-                //Now we have to attach the events...
+                // attach the events
                 remoteServer.MessageArrived += new MessageArrivedEvent(eventProxy.LocallyHandleMessageArrived);
                 connected = true;
             }

@@ -19,7 +19,7 @@
             <Border BorderThickness="1" BorderBrush="Black" Margin="10" Height="400" Width="400"  HorizontalAlignment="Left">
                 <StackPanel>
                     <TextBlock TextWrapping="Wrap" Text="Messages" Margin="10" HorizontalAlignment="Center"/>
-                    <ListView Name="lvMessages" Height="380">
+                    <ListView Name="lvMessages" Height="360">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Sender" Width="80" DisplayMemberBinding="{Binding sender}" />
