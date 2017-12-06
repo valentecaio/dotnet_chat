@@ -9,8 +9,8 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Name="menuLogin" Header=" Login " Click="menuLogin_Click"/>
-            <MenuItem Name="menuLogout" Header=" Logout " Click="menuLogout_Click"/>
+            <MenuItem Name="menuConnect" Header=" Connect " Click="menuConnect_Click"/>
+            <MenuItem Name="menuDisconnect" Header=" Disconnect " Click="menuDisconnect_Click"/>
             <MenuItem Name="menuTestServer" Header=" Test Server " Click="menuTestServer_Click"/>
             <MenuItem Name="menuQuit" Header=" Quit " Click="menuQuit_Click"/>
         </Menu>
@@ -68,11 +68,11 @@
                         <TextBox Name="tbUsername" TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel>
-                        <Button Name="btConfApply" Margin="5" Width="100" HorizontalAlignment="Center" Click="btConfApply_Click">
-                            <TextBlock Text="Apply" FontSize="14"/>
+                        <Button Name="btConfConnect" Margin="5" Width="80" HorizontalAlignment="Center" Click="btConfConnect_Click">
+                            <TextBlock Text="Connect" FontSize="14"/>
                         </Button>
-                        <Button Name="btConfReset" Margin="5" Width="100" HorizontalAlignment="Right" Click="btConfReset_Click">
-                            <TextBlock Text="Reset" FontSize="14"/>
+                        <Button Name="btConfDisconnect" Margin="5" Width="80" HorizontalAlignment="Left" Click="btConfDisconnect_Click">
+                            <TextBlock Text="Disconnect" FontSize="14"/>
                         </Button>
                     </DockPanel>
                 </StackPanel>
