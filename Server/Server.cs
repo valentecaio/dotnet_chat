@@ -36,15 +36,15 @@ namespace remoteServer
                         "These are the available commands:\n\n "
                         + CMD_LIST + "\tShow the list of clients of this server.\n "
                         + CMD_START + "\tStart server on localhost.\n "
-                        + CMD_STOP + "\tStop an active server.\n "
-                        + CMD_QUIT + "\tClose manager.\n "
+                        + CMD_STOP + "\tStop active server.\n "
+                        + CMD_QUIT + "\tStop server and close manager.\n "
                         + CMD_HELP + "\tShow this message.");
                 } else if (cmd == CMD_START) {
                     if (server.serverActive) {
                         Console.WriteLine("The server is already active.\n" + default_msg);
                     } else {
                         server.StartServer();
-                        Console.WriteLine("Server started.");
+                        Console.WriteLine("Server started on port " + server.tcpPort.ToString() + ".");
                     }
                 } else if (cmd == CMD_STOP) {
                     if (!server.serverActive) {
@@ -79,9 +79,9 @@ namespace remoteServer
             #region Variables
 
             private TcpServerChannel serverChannel;
-            private int tcpPort = 12345;
             private ObjRef internalRef;
 
+            public int tcpPort = 12345;
             public bool serverActive = false;
             public List<string> usersList = new List<string>();
 
