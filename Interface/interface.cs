@@ -1,5 +1,4 @@
 using Common;
-using System;
 
 namespace RemotingInterface
 {
@@ -7,15 +6,8 @@ namespace RemotingInterface
     /// this interface contains all the distributed methods
     /// </summary>
 
-    public delegate void MessageArrivedEvent(Message Message);
-
-    public interface IRemoteString
-    {
-        void TextMessage(string msg);
-        void Login(string username);
-        string Logout();
-    }
-
+    public delegate void MessageArrivedEvent(Message msg);
+    
     public interface IServerObject
     {
         #region Events

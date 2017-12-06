@@ -30,14 +30,9 @@ namespace remoteServer
             private TcpServerChannel serverChannel;
             private int tcpPort = 12345;
             private ObjRef internalRef;
+
             private bool serverActive = false;
             private static string serverURI = "Server";
-
-            private string SEPARATOR = "_$_";
-            private string SERVER = "SERVER";
-            private string RECEIVE = "RECEIVE";
-            private string CONNECT = "CONNECT";
-            private string SEND = "SEND";
 
             private List<string> usersList = new List<string>();
 
@@ -47,44 +42,37 @@ namespace remoteServer
 
             public event MessageArrivedEvent MessageArrived;
 
-            public void PublishMessage(Message Message)
+            public void PublishMessage(Message msg)
             {
-                SafeInvokeMessageArrived(Message);
+                SafeInvokeMessageArrived(msg);
             }
 
             #endregion
 
-            #region remote
+            #region server managing
 
             public void StartServer()
             {
                 if (serverActive)
                     return;
 
-                Hashtable props = new Hashtable();
-                props["port"] = this.tcpPort;
-                props["name"] = serverURI;
 
-                //Set up for remoting events properly
+                // Set up for remoting events properly
                 BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
                 serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
+                // create and register tcp channel
+                Hashtable props = new Hashtable();
+                props["port"] = this.tcpPort;
+                props["name"] = serverURI;
                 serverChannel = new TcpServerChannel(props, serverProv);
+                ChannelServices.RegisterChannel(serverChannel, false);
 
-                try
-                {
-                    ChannelServices.RegisterChannel(serverChannel, false);
-                    internalRef = RemotingServices.Marshal(this, props["name"].ToString());
-                    serverActive = true;
-                }
-                catch (RemotingException re)
-                {
-                    //Could not start the server because of a remoting exception
-                }
-                catch (Exception ex)
-                {
-                    //Could not start the server because of some other exception
-                }
+                // keep reference to marshalled object
+                internalRef = RemotingServices.Marshal(this, props["name"].ToString());
+
+                // server is active
+                serverActive = true;
             }
 
             public void StopServer()
@@ -92,25 +80,19 @@ namespace remoteServer
                 if (!serverActive)
                     return;
 
+                // unmarshal and unregister channel of this server
                 RemotingServices.Unmarshal(internalRef);
-
-                try
-                {
-                    ChannelServices.UnregisterChannel(serverChannel);
-                }
-                catch (Exception ex)
-                {
-
-                }
+                ChannelServices.UnregisterChannel(serverChannel);
             }
 
-            private void SafeInvokeMessageArrived(Message Message)
+            private void SafeInvokeMessageArrived(Message msg)
             {
                 if (!serverActive)
                     return;
 
+                // abort if no one is listenning
                 if (MessageArrived == null)
-                    return;         //No Listeners
+                    return;
 
                 MessageArrivedEvent listener = null;
                 Delegate[] dels = MessageArrived.GetInvocationList();
@@ -120,24 +102,23 @@ namespace remoteServer
                     try
                     {
                         listener = (MessageArrivedEvent)del;
-                        listener.Invoke(Message);
+                        listener.Invoke(msg);
                     }
                     catch (Exception ex)
                     {
-                        //Could not reach the destination, so remove it
-                        //from the list
+                        // Could not reach the destination, so remove it from the list
                         MessageArrived -= listener;
                     }
                 }
             }
-
-            #endregion
-
+            
             // Remove server timeout
             public override object InitializeLifetimeService()
             {
                 return null;
             }
+
+            #endregion
         }
     }
 }

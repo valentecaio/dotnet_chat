@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using Interface;
 using System.Runtime.Remoting.Channels.Tcp;
@@ -17,59 +14,46 @@ namespace WPFClient
     /// <summary>
     /// Interaction logic for MainWindow.
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ClientWindow : Window
     {
-        #region constants
-
-        private string SEPARATOR = "_$_";
-        private string RECEIVE = "RECEIVE";
-        private string SEND = "SEND";
-        private string CONNECT = "CONNECT";
-        
-        #endregion
-
         #region variables
 
         public string serverHost = "localhost";
         public string serverPort = "12345";
         public string clientName;
-        public List<Interface.User> usersList = new List<Interface.User>();
+        public List<User> usersList = new List<User>();
         public RemotingInterface.IServerObject remoteServer;
-        
+
         EventProxy eventProxy;
         TcpChannel tcpChan;
-        BinaryClientFormatterSinkProvider clientProv;
-        BinaryServerFormatterSinkProvider serverProv;
         private bool connected = false;
-
-        private delegate void appendMessageListView(Message Message);
 
         #endregion
 
         #region init
 
-        public MainWindow()
+        public ClientWindow()
         {
             InitializeComponent();
 
-            clientProv = new BinaryClientFormatterSinkProvider();
-            serverProv = new BinaryServerFormatterSinkProvider();
+            BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+            BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
             serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
+            // init client event proxy and register callbacl
             eventProxy = new EventProxy();
-            eventProxy.MessageArrived += new MessageArrivedEvent(eventProxy_MessageArrived);
-            
-            // create and register TCP channel
+            eventProxy.MessageArrived += new MessageArrivedEvent(eventProxy_MessageArrived_callback);
+
+            // create and register TCP channel (get First available port)
             Hashtable props = new Hashtable();
             props["name"] = "Client";
-            props["port"] = 0;      //First available port
+            props["port"] = 0;
             this.tcpChan = new TcpChannel(props, clientProv, serverProv);
             ChannelServices.RegisterChannel(tcpChan);
 
+            // register IServerObject service
             string serverURL = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
-            RemotingConfiguration.RegisterWellKnownClientType(
-              new WellKnownClientTypeEntry(typeof(RemotingInterface.IServerObject), serverURL));
-
+            RemotingConfiguration.RegisterWellKnownClientType(new WellKnownClientTypeEntry(typeof(IServerObject), serverURL));
         }
 
         #endregion
@@ -118,8 +102,9 @@ namespace WPFClient
         #endregion callback
 
         #region UI changes
+        
+        private delegate void appendMessageListView(Message msg);
 
-        // fake function, temporally
         private void appendMessage(Message msg)
         {
             if (!Application.Current.Dispatcher.CheckAccess())
@@ -129,16 +114,15 @@ namespace WPFClient
             }
             else
             {
-                Console.WriteLine("SetTextBox: " + msg);
                 this.lvMessages.Items.Add(msg);
             }
         }
 
         #endregion
 
-        #region server interaction
+        #region background
 
-        void eventProxy_MessageArrived(Message Message)
+        void eventProxy_MessageArrived_callback(Message Message)
         {
             appendMessage(Message);
         }
@@ -149,7 +133,7 @@ namespace WPFClient
                 return;
 
             // broadcast message
-            Message msg = new Message { sender = this.clientName, msg = text };
+            Message msg = new Message { sender = this.clientName, text = text };
             remoteServer.PublishMessage(msg);
 
             // empty message textBox
@@ -158,10 +142,8 @@ namespace WPFClient
 
         public void connect()
         {
-           if (connected)
+            if (connected)
                 return;
-
-            Console.WriteLine(CONNECT + " with name " + this.clientName);
 
             try
             {
@@ -170,7 +152,7 @@ namespace WPFClient
 
                 // broadcast new connection
                 remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
-                Message msg = new Message { sender = "SERVER", msg = "Client " + this.clientName + " connected" };
+                Message msg = new Message { sender = "SERVER", text = "Client " + this.clientName + " connected" };
                 remoteServer.PublishMessage(msg);
 
                 // attach the events
@@ -197,25 +179,5 @@ namespace WPFClient
         }
 
         #endregion
-
-        #region Interface
-
-        public void TextMessage(string msg)
-        {
-            Console.WriteLine(RECEIVE + " msg " + msg);
-        }
-
-        public void Login(string username)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string Logout()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
     }
 }

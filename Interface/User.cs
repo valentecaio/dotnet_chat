@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Interface
+namespace Common
 {
     public class User
     {
-        int port;
-        string username;
-
-        public User(int port, string username)
-        {
-            this.port = port;
-            this.username = username;
-        }
+        string username { get; set; }
     }
 }

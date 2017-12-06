@@ -45,9 +45,9 @@
     <Compile Include="Server.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Interface\Interface.csproj">
+    <ProjectReference Include="..\Interface\Common.csproj">
       <Project>{898A00A1-0D89-4DFF-9D73-DC2401686C3D}</Project>
-      <Name>Interface</Name>
+      <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
