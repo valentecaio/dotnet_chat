@@ -25,6 +25,8 @@ namespace RemotingInterface
 
         void Unsubscribe(string username);
 
+        void Ping();
+
         #endregion
     }
 }

@@ -8,7 +8,6 @@ using System.Collections;
 using System.Runtime.Remoting;
 using RemotingInterface;
 using Common;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace WPFClient
@@ -60,26 +59,12 @@ namespace WPFClient
             this.serverHost = this.tbServerIP.Text;
         }
 
-        private void btSend_Click(object sender, RoutedEventArgs e)
+        private void callback_sendMessage(object sender, RoutedEventArgs e)
         {
             this.sendMessage(this.tbSend.Text);
         }
         
-        private void btConfConnect_Click(object sender, RoutedEventArgs e)
-        {
-            // it works as a "reconnect button"
-            // disconnect before connecting with new configurations
-            this.disconnect();
-            this.applyConf();
-            this.connect();
-        }
-        
-        private void btConfDisconnect_Click(object sender, RoutedEventArgs e)
-        {
-            this.disconnect();
-        }
-
-        private void menuConnect_Click(object sender, RoutedEventArgs e)
+        private void callback_connect(object sender, RoutedEventArgs e)
         {
             // it works as a "reconnect button"
             // disconnect before connecting with new configurations
@@ -88,24 +73,25 @@ namespace WPFClient
             this.connect();
         }
 
-        private void menuDisconnect_Click(object sender, RoutedEventArgs e)
+        private void callback_disconnect(object sender, RoutedEventArgs e)
         {
             this.disconnect();
         }
 
-        private void menuQuit_Click(object sender, RoutedEventArgs e)
+        private void callback_quit(object sender, RoutedEventArgs e)
         {
             disconnect();
             freeChannel();
             Close();
         }
 
-        private void menuTestServer_Click(object sender, RoutedEventArgs e)
+        private void callback_testServer(object sender, RoutedEventArgs e)
         {
-
+            applyConf();
+            testConnection();
         }
 
-        private void tbSendKeyDownHandler(object sender, KeyEventArgs e)
+        private void callback_keyDown_send(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
             {
@@ -250,7 +236,7 @@ namespace WPFClient
 
         public void connect()
         {
-            if (connected)
+            if (connected || this.tbUsername.Text == "")
                 return;
 
             try
@@ -301,7 +287,24 @@ namespace WPFClient
 
             connected = false;
         }
-        
+
+        public void testConnection()
+        {
+            string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
+            try
+            {
+                // try to call a function (Ping) in the server
+                IServerObject remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
+                remoteServer.Ping();
+                
+                MessageBox.Show("The server is up! (" + serverURI + ").");
+            } catch (Exception ex)
+            {
+                MessageBox.Show("Can't connect to server (" + serverURI + ").");
+            }
+
+        }
+
         #endregion
     }
 }

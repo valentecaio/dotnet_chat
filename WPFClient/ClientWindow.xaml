@@ -10,10 +10,10 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Name="menuConnect" Header=" Connect " Click="menuConnect_Click"/>
-            <MenuItem Name="menuDisconnect" Header=" Disconnect " Click="menuDisconnect_Click"/>
-            <MenuItem Name="menuTestServer" Header=" Test Server " Click="menuTestServer_Click"/>
-            <MenuItem Name="menuQuit" Header=" Quit " Click="menuQuit_Click"/>
+            <MenuItem Name="menuConnect" Header=" Connect " Click="callback_connect"/>
+            <MenuItem Name="menuDisconnect" Header=" Disconnect " Click="callback_disconnect"/>
+            <MenuItem Name="menuTestServer" Header=" Test Server " Click="callback_testServer"/>
+            <MenuItem Name="menuQuit" Header=" Quit " Click="callback_quit"/>
         </Menu>
         
         <StackPanel Margin="10">
@@ -33,8 +33,8 @@
             </Border>
 
             <DockPanel>
-                <TextBox Name="tbSend" KeyDown="tbSendKeyDownHandler" TextWrapping="Wrap" Margin="10" Height="80" Width="300" HorizontalAlignment="Left"/>
-                <Button Name="btSend" Margin="10" Height="80" Width="80" HorizontalAlignment="Right" Click="btSend_Click">
+                <TextBox Name="tbSend" KeyDown="callback_keyDown_send" TextWrapping="Wrap" Margin="10" Height="80" Width="300" HorizontalAlignment="Left"/>
+                <Button Name="btSend" Margin="10" Height="80" Width="80" HorizontalAlignment="Right" Click="callback_sendMessage">
                     <TextBlock Text="Send" FontSize="24"/>
                 </Button>
             </DockPanel>
@@ -69,11 +69,14 @@
                         <TextBox Name="tbUsername" TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel>
-                        <Button Name="btConfConnect" Margin="5" Width="100" HorizontalAlignment="Center" Click="btConfConnect_Click">
+                        <Button Name="btConfConnect" Margin="5" Width="80" HorizontalAlignment="Center" Click="callback_connect">
                             <TextBlock Text="Connect" FontSize="14"/>
                         </Button>
-                        <Button Name="btConfDisconnect" Margin="5" Width="100" HorizontalAlignment="Left" Click="btConfDisconnect_Click">
+                        <Button Name="btConfDisconnect" Margin="5" Width="90" HorizontalAlignment="Left" Click="callback_disconnect">
                             <TextBlock Text="Disconnect" FontSize="14"/>
+                        </Button>
+                        <Button Name="btConfTestServer" Margin="5" Width="90" HorizontalAlignment="Left" Click="callback_TestServer">
+                            <TextBlock Text="Test Server" FontSize="14"/>
                         </Button>
                     </DockPanel>
                 </StackPanel>

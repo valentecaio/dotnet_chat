@@ -63,6 +63,8 @@ namespace remoteServer
                 PublishMessage(new Message { type = Message.TYPE_DISCONNECT, content = username });
             }
 
+            public void Ping() { }
+
             #endregion
 
             #region server management
