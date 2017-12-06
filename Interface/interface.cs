@@ -21,7 +21,9 @@ namespace RemotingInterface
 
         void PublishMessage(Message msg);
 
-        List<string> PublishNewSubscriber(string username);
+        List<string> Subscribe(string username);
+
+        void Unsubscribe(string username);
 
         #endregion
     }

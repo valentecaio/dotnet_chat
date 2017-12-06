@@ -50,16 +50,22 @@ namespace remoteServer
                 SafeInvokeMessageArrived(msg);
             }
 
-            public List<string> PublishNewSubscriber(string username)
+            public List<string> Subscribe(string username)
             {
                 this.usersList.Add(username);
                 PublishMessage(new Message { type = Message.TYPE_CONNECT, content = username });
                 return this.usersList;
             }
 
+            public void Unsubscribe(string username)
+            {
+                this.usersList.Remove(username);
+                PublishMessage(new Message { type = Message.TYPE_DISCONNECT, content = username });
+            }
+
             #endregion
 
-            #region server managing
+            #region server management
 
             public void StartServer()
             {

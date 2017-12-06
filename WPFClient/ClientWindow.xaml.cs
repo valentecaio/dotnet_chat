@@ -36,10 +36,12 @@ namespace WPFClient
         public ClientWindow()
         {
             InitializeComponent();
-            
+
             // register IServerObject services
-            string serverURL = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
-            RemotingConfiguration.RegisterWellKnownClientType(new WellKnownClientTypeEntry(typeof(IServerObject), serverURL));
+            // server URI = tcp://<server ip>:<server port>/<server class>
+            string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
+            RemotingConfiguration.RegisterWellKnownClientType(
+                new WellKnownClientTypeEntry(typeof(IServerObject), serverURI));
 
             // open a TCP channel that may only be closed when finishing app
             openChannel();
@@ -140,7 +142,12 @@ namespace WPFClient
                 }
             }
         }
-
+        
+        private void log(string text)
+        {
+            appendMessage(new Message { sender = " ", content = text });
+        }
+        
         #endregion
 
         #region background
@@ -158,14 +165,14 @@ namespace WPFClient
             tbSend.Text = "";
         }
 
-        void eventProxy_MessageArrived_callback(Message msg)
+        public void eventProxy_MessageArrived_callback(Message msg)
         {
             if (msg.type == Message.TYPE_TEXT) {
                 appendMessage(msg);
             } else if (msg.type == Message.TYPE_CONNECT) {
                 string newUser = msg.content;
 
-                // ignore connect messages from itself
+                // ignore own connect messages
                 if (newUser == this.username)
                     return;
 
@@ -176,9 +183,18 @@ namespace WPFClient
                 updateUsersTable(this.usersList);
 
                 // log message to user
-                appendMessage(new Message { sender = " ", content = "client " + newUser + " connected" });
+                log("Client " + newUser + " connected");
             } else if (msg.type == Message.TYPE_DISCONNECT) {
+                string user = msg.content;
 
+                // remove client from userslist
+                this.usersList.Remove(user);
+
+                // update users table
+                updateUsersTable(this.usersList);
+
+                // log message to user
+                log("Client " + user + " disconnected.");
             }
         }
 
@@ -203,6 +219,12 @@ namespace WPFClient
             }
         }
 
+        public void freeChannel()
+        {
+            // Now we can close it out
+            ChannelServices.UnregisterChannel(tcpChan);
+        }
+
         public void connect()
         {
             if (connected)
@@ -214,20 +236,18 @@ namespace WPFClient
                 eventProxy = new EventProxy();
                 eventProxy.MessageArrived += new MessageArrivedEvent(eventProxy_MessageArrived_callback);
 
-                // server URI (tcp://<server ip>:<server port>/<server class>) and interface name
-                string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
-
                 // attach own event handler to remoteServer invoker
+                string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
                 remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
                 remoteServer.MessageArrived += new MessageArrivedEvent(eventProxy.LocallyHandleMessageArrived);
                 
                 // broadcast new connection and receive clients list
-                this.usersList = remoteServer.PublishNewSubscriber(this.username);
+                this.usersList = remoteServer.Subscribe(this.username);
 
                 // refresh users table
                 this.updateUsersTable(this.usersList);
 
-                appendMessage(new Message { sender = " ", content = "Connected as " + this.username });
+                log("Connected as " + this.username + ".");
 
                 // change status to connected
                 this.connected = true;
@@ -247,15 +267,17 @@ namespace WPFClient
             // First remove the event
             remoteServer.MessageArrived -= eventProxy.LocallyHandleMessageArrived;
 
+            // broadcast disconnect message
+            remoteServer.Unsubscribe(this.username);
+
+            // empty users table
+            this.usersList.Clear();
+            updateUsersTable(this.usersList);
+
+            log("Disconnected.");
+
             connected = false;
         }
-
-        public void freeChannel()
-        {
-            // Now we can close it out
-            ChannelServices.UnregisterChannel(tcpChan);
-        }
-
         #endregion
     }
 }
