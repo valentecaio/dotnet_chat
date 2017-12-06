@@ -8,7 +8,7 @@
         Closing="Window_Closing"
         Title="Client" Height="600" Width="800">
 
-    <DockPanel>
+    <DockPanel Background="AliceBlue" >
         <Menu DockPanel.Dock="Top">
             <MenuItem Name="menuConnect" Header=" Connect " Click="callback_connect"/>
             <MenuItem Name="menuDisconnect" Header=" Disconnect " Click="callback_disconnect"/>
@@ -47,7 +47,7 @@
                     <ListView Name="lvUsers">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Name" Width="115" DisplayMemberBinding="{Binding username}" />
+                                <GridViewColumn Header="Name" Width="280" DisplayMemberBinding="{Binding username}" />
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -75,7 +75,7 @@
                         <Button Name="btConfDisconnect" Margin="5" Width="90" HorizontalAlignment="Left" Click="callback_disconnect">
                             <TextBlock Text="Disconnect" FontSize="14"/>
                         </Button>
-                        <Button Name="btConfTestServer" Margin="5" Width="90" HorizontalAlignment="Left" Click="callback_TestServer">
+                        <Button Name="btConfTestServer" Margin="5" Width="90" HorizontalAlignment="Left" Click="callback_testServer">
                             <TextBlock Text="Test Server" FontSize="14"/>
                         </Button>
                     </DockPanel>

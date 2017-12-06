@@ -19,8 +19,7 @@ namespace WPFClient
     {
         #region variables
 
-        public string serverHost = "localhost";
-        public string serverPort = "12345";
+        public string serverURI = "tcp://localhost:12345/Server";
         public string username;
         public List<string> usersList = new List<string>();
         public RemotingInterface.IServerObject remoteServer;
@@ -39,7 +38,6 @@ namespace WPFClient
 
             // register IServerObject services
             // server URI = tcp://<server ip>:<server port>/<server class>
-            string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
             RemotingConfiguration.RegisterWellKnownClientType(
                 new WellKnownClientTypeEntry(typeof(IServerObject), serverURI));
 
@@ -55,8 +53,7 @@ namespace WPFClient
         private void applyConf()
         {
             this.username = this.tbUsername.Text;
-            this.serverPort = this.tbServerPort.Text;
-            this.serverHost = this.tbServerIP.Text;
+            this.serverURI = "tcp://" + this.tbServerIP.Text + ":" + this.tbServerPort.Text + "/Server";
         }
 
         private void callback_sendMessage(object sender, RoutedEventArgs e)
@@ -246,7 +243,6 @@ namespace WPFClient
                 eventProxy.MessageArrived += new MessageArrivedEvent(eventProxy_MessageArrived_callback);
 
                 // attach own event handler to remoteServer invoker
-                string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
                 remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
                 remoteServer.MessageArrived += new MessageArrivedEvent(eventProxy.LocallyHandleMessageArrived);
                 
@@ -290,10 +286,9 @@ namespace WPFClient
 
         public void testConnection()
         {
-            string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
             try
             {
-                // try to call a function (Ping) in the server
+                // try to call a function (Ping) on the server
                 IServerObject remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
                 remoteServer.Ping();
                 
