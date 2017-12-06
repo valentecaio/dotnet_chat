@@ -1,4 +1,6 @@
+using RemotingInterface;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
@@ -6,74 +8,136 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 namespace remoteServer
 {
-	public class Server : MarshalByRefObject, RemotingInterface.IRemoteString
+    public class Program
     {
-        private string SEPARATOR = "_$_";
-        private string SERVER = "SERVER";
-        private string RECEIVE = "RECEIVE";
-        private string CONNECT = "CONNECT";
-        private string SEND = "SEND";
+        static Server server = new Server();
 
-        private List<string> usersList = new List<string>();
-
-		static void Main()
-		{
-			// Create a TCP channel to transfer data
-			TcpChannel channel = new TcpChannel(12345);
-
-            // register channel
-            ChannelServices.RegisterChannel(channel);
-
-			// Start server listenning in a Singleton object
-			RemotingConfiguration.RegisterWellKnownServiceType(
-                typeof(Server), "Server",  WellKnownObjectMode.Singleton);
-
-			// keep console alive
-			Console.WriteLine("Server started");
-            Console.ReadLine();	
-		}
-
-		// Remove server timeout
-		public override object  InitializeLifetimeService()
-		{
-			return null;
-		}
-
-        public void broadcast(string msg)
+        static void Main()
         {
+            server.StartServer();
 
+            // keep console alive
+            Console.Title = "Server";
+            Console.WriteLine("Server started");
+            Console.ReadLine();
         }
 
-        public void addUser(string username)
+        public class Server : MarshalByRefObject, RemotingInterface.IServerObject
         {
-            // add user to own list
-            this.usersList.Add(username);
+            #region Variables
 
-            // warn all users about new user
-            this.TextMessage(SERVER + SEPARATOR + username);
+            private TcpServerChannel serverChannel;
+            private int tcpPort = 12345;
+            private ObjRef internalRef;
+            private bool serverActive = false;
+            private static string serverURI = "Server";
 
-            Console.WriteLine(this.usersList.ToString());
+            private string SEPARATOR = "_$_";
+            private string SERVER = "SERVER";
+            private string RECEIVE = "RECEIVE";
+            private string CONNECT = "CONNECT";
+            private string SEND = "SEND";
+
+            private List<string> usersList = new List<string>();
+
+            #endregion
+
+            #region IServerObject Members
+
+            public event MessageArrivedEvent MessageArrived;
+
+            public void PublishMessage(string Message)
+            {
+                SafeInvokeMessageArrived(Message);
+            }
+
+            #endregion
+
+            #region remote
+
+            public void StartServer()
+            {
+                if (serverActive)
+                    return;
+
+                Hashtable props = new Hashtable();
+                props["port"] = this.tcpPort;
+                props["name"] = serverURI;
+
+                //Set up for remoting events properly
+                BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+                serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+
+                serverChannel = new TcpServerChannel(props, serverProv);
+
+                try
+                {
+                    ChannelServices.RegisterChannel(serverChannel, false);
+                    internalRef = RemotingServices.Marshal(this, props["name"].ToString());
+                    serverActive = true;
+                }
+                catch (RemotingException re)
+                {
+                    //Could not start the server because of a remoting exception
+                }
+                catch (Exception ex)
+                {
+                    //Could not start the server because of some other exception
+                }
+            }
+
+            public void StopServer()
+            {
+                if (!serverActive)
+                    return;
+
+                RemotingServices.Unmarshal(internalRef);
+
+                try
+                {
+                    ChannelServices.UnregisterChannel(serverChannel);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            private void SafeInvokeMessageArrived(string Message)
+            {
+                if (!serverActive)
+                    return;
+
+                if (MessageArrived == null)
+                    return;         //No Listeners
+
+                MessageArrivedEvent listener = null;
+                Delegate[] dels = MessageArrived.GetInvocationList();
+
+                foreach (Delegate del in dels)
+                {
+                    try
+                    {
+                        listener = (MessageArrivedEvent)del;
+                        listener.Invoke(Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        //Could not reach the destination, so remove it
+                        //from the list
+                        MessageArrived -= listener;
+                    }
+                }
+            }
+
+            #endregion
+
+            // Remove server timeout
+            public override object InitializeLifetimeService()
+            {
+                return null;
+            }
+            
         }
-
-        #region members of Interface
-
-        public void TextMessage(string msg)
-		{
-            Console.WriteLine(RECEIVE + " msg " + msg + SERVER);
-            broadcast(msg);
-		}
-
-        public void Login(string username)
-        {
-            Console.WriteLine(CONNECT + " with name " + username);
-            this.addUser(username);
-        }
-
-        public string Logout()
-        {
-            throw new NotImplementedException();
-        }
-        
-        #endregion
     }
 }

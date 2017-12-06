@@ -22,8 +22,8 @@
                     <ListView Name="lvMessages" Height="380">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Sender" Width="115" DisplayMemberBinding="{Binding Sender}" />
-                                <GridViewColumn Header="Message" Width="280" DisplayMemberBinding="{Binding Message}" />
+                                <GridViewColumn Header="Sender" Width="80" DisplayMemberBinding="{Binding sender}" />
+                                <GridViewColumn Header="Message" Width="290" DisplayMemberBinding="{Binding msg}" />
                             </GridView>
                         </ListView.View>
                     </ListView>
