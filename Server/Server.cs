@@ -32,12 +32,12 @@ namespace remoteServer
             while (cmd != CMD_QUIT)
             {
                 if (cmd == CMD_HELP) {
-                    Console.WriteLine("That's a server manager interface. " +
-                        "These are the available commands:\n\n"
-                        + CMD_LIST + "\tShow the list of clients of this server.\n"
-                        + CMD_START + "\tStart server on localhost.\n"
-                        + CMD_STOP + "\tStop an active server.\n"
-                        + CMD_QUIT + "\tClose manager.\n"
+                    Console.WriteLine("That's a server manager interface.\n" +
+                        "These are the available commands:\n\n "
+                        + CMD_LIST + "\tShow the list of clients of this server.\n "
+                        + CMD_START + "\tStart server on localhost.\n "
+                        + CMD_STOP + "\tStop an active server.\n "
+                        + CMD_QUIT + "\tClose manager.\n "
                         + CMD_HELP + "\tShow this message.");
                 } else if (cmd == CMD_START) {
                     if (server.serverActive) {
