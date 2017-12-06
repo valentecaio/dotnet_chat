@@ -21,7 +21,7 @@ namespace WPFClient
 
         public string serverHost = "localhost";
         public string serverPort = "12345";
-        public string clientName;
+        public string username;
         public List<string> usersList = new List<string>();
         public RemotingInterface.IServerObject remoteServer;
 
@@ -40,6 +40,9 @@ namespace WPFClient
             // register IServerObject services
             string serverURL = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
             RemotingConfiguration.RegisterWellKnownClientType(new WellKnownClientTypeEntry(typeof(IServerObject), serverURL));
+
+            // open a TCP channel that may only be closed when finishing app
+            openChannel();
         }
 
         #endregion
@@ -48,7 +51,7 @@ namespace WPFClient
         
         private void applyConf()
         {
-            this.clientName = this.tbUsername.Text;
+            this.username = this.tbUsername.Text;
             this.serverPort = this.tbServerPort.Text;
             this.serverHost = this.tbServerIP.Text;
         }
@@ -99,15 +102,16 @@ namespace WPFClient
         #endregion callback
 
         #region UI changes
-        
+
+        // used by showMessage to update UI element outside main thread
         private delegate void appendMessageListView(Message msg);
 
-        private void showMessage(Message msg)
+        private void appendMessage(Message msg)
         {
             if (!Application.Current.Dispatcher.CheckAccess())
             {
                 Application.Current.Dispatcher.BeginInvoke(
-                    new appendMessageListView(showMessage), new object[] { msg });
+                    new appendMessageListView(appendMessage), new object[] { msg });
                 return;
             }
             else
@@ -115,7 +119,8 @@ namespace WPFClient
                 this.lvMessages.Items.Add(msg);
             }
         }
-        
+
+        // used by updateUsersTable to update UI element outside main thread
         private delegate void updateUserListView(List<string> users);
 
         private void updateUsersTable(List<string> users)
@@ -146,21 +151,42 @@ namespace WPFClient
                 return;
 
             // broadcast message
-            Message msg = new Message { sender = this.clientName, text = text };
+            Message msg = new Message { type = Message.TYPE_TEXT, sender = this.username, content = text };
             remoteServer.PublishMessage(msg);
 
-            // empty message textBox
+            // clear message textBox
             tbSend.Text = "";
         }
-        
-        public void connect()
-        {
-            if (connected)
-                return;
 
+        void eventProxy_MessageArrived_callback(Message msg)
+        {
+            if (msg.type == Message.TYPE_TEXT) {
+                appendMessage(msg);
+            } else if (msg.type == Message.TYPE_CONNECT) {
+                string newUser = msg.content;
+
+                // ignore connect messages from itself
+                if (newUser == this.username)
+                    return;
+
+                // add new client to userslist
+                this.usersList.Add(newUser);
+
+                // update users table
+                updateUsersTable(this.usersList);
+
+                // log message to user
+                appendMessage(new Message { sender = " ", content = "client " + newUser + " connected" });
+            } else if (msg.type == Message.TYPE_DISCONNECT) {
+
+            }
+        }
+
+        public void openChannel()
+        {
             try
             {
-                // create and register TCP channel on the First available port
+                // create and register TCP channel to listen
                 BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
                 BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
                 serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
@@ -169,10 +195,24 @@ namespace WPFClient
                 props["port"] = 0;
                 this.tcpChan = new TcpChannel(props, clientProv, serverProv);
                 ChannelServices.RegisterChannel(tcpChan);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Could not create TCP channel: " + ex.Message);
+                connected = false;
+            }
+        }
 
+        public void connect()
+        {
+            if (connected)
+                return;
+
+            try
+            {
                 // init client event proxy and register callback
                 eventProxy = new EventProxy();
-                eventProxy.MessageArrived += new MessageArrivedEvent(showMessage);
+                eventProxy.MessageArrived += new MessageArrivedEvent(eventProxy_MessageArrived_callback);
 
                 // server URI (tcp://<server ip>:<server port>/<server class>) and interface name
                 string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
@@ -180,13 +220,15 @@ namespace WPFClient
                 // attach own event handler to remoteServer invoker
                 remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
                 remoteServer.MessageArrived += new MessageArrivedEvent(eventProxy.LocallyHandleMessageArrived);
-
+                
                 // broadcast new connection and receive clients list
-                this.usersList = remoteServer.PublishNewSubscriber(this.clientName);
+                this.usersList = remoteServer.PublishNewSubscriber(this.username);
 
                 // refresh users table
                 this.updateUsersTable(this.usersList);
-                
+
+                appendMessage(new Message { sender = " ", content = "Connected as " + this.username });
+
                 // change status to connected
                 this.connected = true;
             }
@@ -205,10 +247,13 @@ namespace WPFClient
             // First remove the event
             remoteServer.MessageArrived -= eventProxy.LocallyHandleMessageArrived;
 
+            connected = false;
+        }
+
+        public void freeChannel()
+        {
             // Now we can close it out
             ChannelServices.UnregisterChannel(tcpChan);
-
-            connected = false;
         }
 
         #endregion

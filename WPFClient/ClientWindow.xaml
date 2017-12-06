@@ -23,7 +23,7 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Sender" Width="80" DisplayMemberBinding="{Binding sender}" />
-                                <GridViewColumn Header="Message" Width="290" DisplayMemberBinding="{Binding text}" />
+                                <GridViewColumn Header="Message" Width="300" DisplayMemberBinding="{Binding content}" />
                             </GridView>
                         </ListView.View>
                     </ListView>

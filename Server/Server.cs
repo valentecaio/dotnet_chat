@@ -53,7 +53,7 @@ namespace remoteServer
             public List<string> PublishNewSubscriber(string username)
             {
                 this.usersList.Add(username);
-                PublishMessage(new Message { sender = "server", text = "new client: " + username });
+                PublishMessage(new Message { type = Message.TYPE_CONNECT, content = username });
                 return this.usersList;
             }
 
