@@ -11,6 +11,8 @@ namespace remoteServer
 {
     public class Program
     {
+        #region program
+
         static Server server = new Server();
 
         static void Main()
@@ -23,7 +25,9 @@ namespace remoteServer
             Console.ReadLine();
         }
 
-        public class Server : MarshalByRefObject, IServerObject
+        #endregion
+
+        class Server : MarshalByRefObject, IServerObject
         {
             #region Variables
 
@@ -32,7 +36,6 @@ namespace remoteServer
             private ObjRef internalRef;
 
             private bool serverActive = false;
-            private static string serverURI = "Server";
 
             private List<string> usersList = new List<string>();
 
@@ -47,6 +50,13 @@ namespace remoteServer
                 SafeInvokeMessageArrived(msg);
             }
 
+            public List<string> PublishNewSubscriber(string username)
+            {
+                this.usersList.Add(username);
+                PublishMessage(new Message { sender = "server", text = "new client: " + username });
+                return this.usersList;
+            }
+
             #endregion
 
             #region server managing
@@ -55,8 +65,7 @@ namespace remoteServer
             {
                 if (serverActive)
                     return;
-
-
+                
                 // Set up for remoting events properly
                 BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
                 serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
@@ -64,8 +73,8 @@ namespace remoteServer
                 // create and register tcp channel
                 Hashtable props = new Hashtable();
                 props["port"] = this.tcpPort;
-                props["name"] = serverURI;
-                serverChannel = new TcpServerChannel(props, serverProv);
+                props["name"] = "Server";
+                this.serverChannel = new TcpServerChannel(props, serverProv);
                 ChannelServices.RegisterChannel(serverChannel, false);
 
                 // keep reference to marshalled object

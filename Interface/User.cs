@@ -6,6 +6,6 @@ namespace Common
 {
     public class User
     {
-        string username { get; set; }
+        public string username { get; set; }
     }
 }

@@ -68,10 +68,10 @@
                         <TextBox Name="tbUsername" TextWrapping="Wrap" Text="" Margin="5" Width="150" HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel>
-                        <Button Name="btConfConnect" Margin="5" Width="80" HorizontalAlignment="Center" Click="btConfConnect_Click">
+                        <Button Name="btConfConnect" Margin="5" Width="100" HorizontalAlignment="Center" Click="btConfConnect_Click">
                             <TextBlock Text="Connect" FontSize="14"/>
                         </Button>
-                        <Button Name="btConfDisconnect" Margin="5" Width="80" HorizontalAlignment="Left" Click="btConfDisconnect_Click">
+                        <Button Name="btConfDisconnect" Margin="5" Width="100" HorizontalAlignment="Left" Click="btConfDisconnect_Click">
                             <TextBlock Text="Disconnect" FontSize="14"/>
                         </Button>
                     </DockPanel>

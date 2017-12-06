@@ -8,6 +8,7 @@ using System.Collections;
 using System.Runtime.Remoting;
 using RemotingInterface;
 using Common;
+using System.Windows.Controls;
 
 namespace WPFClient
 {
@@ -21,7 +22,7 @@ namespace WPFClient
         public string serverHost = "localhost";
         public string serverPort = "12345";
         public string clientName;
-        public List<User> usersList = new List<User>();
+        public List<string> usersList = new List<string>();
         public RemotingInterface.IServerObject remoteServer;
 
         EventProxy eventProxy;
@@ -45,7 +46,7 @@ namespace WPFClient
 
         #region UI callbacks
         
-        void applyConf()
+        private void applyConf()
         {
             this.clientName = this.tbUsername.Text;
             this.serverPort = this.tbServerPort.Text;
@@ -101,11 +102,12 @@ namespace WPFClient
         
         private delegate void appendMessageListView(Message msg);
 
-        private void appendMessage(Message msg)
+        private void showMessage(Message msg)
         {
             if (!Application.Current.Dispatcher.CheckAccess())
             {
-                Application.Current.Dispatcher.BeginInvoke(new appendMessageListView(appendMessage), new object[] { msg });
+                Application.Current.Dispatcher.BeginInvoke(
+                    new appendMessageListView(showMessage), new object[] { msg });
                 return;
             }
             else
@@ -113,15 +115,30 @@ namespace WPFClient
                 this.lvMessages.Items.Add(msg);
             }
         }
+        
+        private delegate void updateUserListView(List<string> users);
+
+        private void updateUsersTable(List<string> users)
+        {
+            if (!Application.Current.Dispatcher.CheckAccess())
+            {
+                Application.Current.Dispatcher.BeginInvoke(
+                    new updateUserListView(updateUsersTable), new object[] { users });
+                return;
+            }
+            else
+            {
+                this.lvUsers.Items.Clear();
+                foreach(string user in users)
+                {
+                    this.lvUsers.Items.Add(new User { username = user });
+                }
+            }
+        }
 
         #endregion
 
         #region background
-        
-        void eventProxy_MessageArrived_callback(Message Message)
-        {
-            appendMessage(Message);
-        }
 
         public void sendMessage(string text)
         {
@@ -143,7 +160,7 @@ namespace WPFClient
 
             try
             {
-                // create and register TCP channel (get First available port)
+                // create and register TCP channel on the First available port
                 BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
                 BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
                 serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
@@ -155,19 +172,23 @@ namespace WPFClient
 
                 // init client event proxy and register callback
                 eventProxy = new EventProxy();
-                eventProxy.MessageArrived += new MessageArrivedEvent(eventProxy_MessageArrived_callback);
+                eventProxy.MessageArrived += new MessageArrivedEvent(showMessage);
 
-                // server URL (tcp://<server ip>:<server port>/<server class>) and interface name
+                // server URI (tcp://<server ip>:<server port>/<server class>) and interface name
                 string serverURI = "tcp://" + this.serverHost + ":" + this.serverPort + "/Server";
 
-                // broadcast new connection
+                // attach own event handler to remoteServer invoker
                 remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
-                Message msg = new Message { sender = this.clientName, text = "Client " + this.clientName + " connected" };
-                remoteServer.PublishMessage(msg);
-
-                // attach the events
                 remoteServer.MessageArrived += new MessageArrivedEvent(eventProxy.LocallyHandleMessageArrived);
-                connected = true;
+
+                // broadcast new connection and receive clients list
+                this.usersList = remoteServer.PublishNewSubscriber(this.clientName);
+
+                // refresh users table
+                this.updateUsersTable(this.usersList);
+                
+                // change status to connected
+                this.connected = true;
             }
             catch (Exception ex)
             {

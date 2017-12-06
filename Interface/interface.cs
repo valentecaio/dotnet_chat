@@ -1,4 +1,5 @@
 using Common;
+using System.Collections.Generic;
 
 namespace RemotingInterface
 {
@@ -19,6 +20,8 @@ namespace RemotingInterface
         #region Methods
 
         void PublishMessage(Message msg);
+
+        List<string> PublishNewSubscriber(string username);
 
         #endregion
     }
