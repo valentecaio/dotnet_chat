@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFClient"
         mc:Ignorable="d"
+        Closing="Window_Closing"
         Title="Client" Height="600" Width="800">
 
     <DockPanel>
@@ -32,7 +33,7 @@
             </Border>
 
             <DockPanel>
-                <TextBox Name="tbSend" TextWrapping="Wrap" Margin="10" Height="80" Width="300" HorizontalAlignment="Left"/>
+                <TextBox Name="tbSend" KeyDown="tbSendKeyDownHandler" TextWrapping="Wrap" Margin="10" Height="80" Width="300" HorizontalAlignment="Left"/>
                 <Button Name="btSend" Margin="10" Height="80" Width="80" HorizontalAlignment="Right" Click="btSend_Click">
                     <TextBlock Text="Send" FontSize="24"/>
                 </Button>

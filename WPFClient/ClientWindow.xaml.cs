@@ -9,6 +9,7 @@ using System.Runtime.Remoting;
 using RemotingInterface;
 using Common;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace WPFClient
 {
@@ -43,7 +44,8 @@ namespace WPFClient
             RemotingConfiguration.RegisterWellKnownClientType(
                 new WellKnownClientTypeEntry(typeof(IServerObject), serverURI));
 
-            // open a TCP channel that may only be closed when finishing app
+            // open a TCP channel to listen
+            // this channel may only be closed when finishing app
             openChannel();
         }
 
@@ -94,11 +96,27 @@ namespace WPFClient
         private void menuQuit_Click(object sender, RoutedEventArgs e)
         {
             disconnect();
+            freeChannel();
+            Close();
         }
 
         private void menuTestServer_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void tbSendKeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                this.sendMessage(this.tbSend.Text);
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            disconnect();
+            freeChannel();
         }
 
         #endregion callback
@@ -154,7 +172,7 @@ namespace WPFClient
 
         public void sendMessage(string text)
         {
-            if (!connected)
+            if (!connected || text.Length==0)
                 return;
 
             // broadcast message
@@ -183,7 +201,7 @@ namespace WPFClient
                 updateUsersTable(this.usersList);
 
                 // log message to user
-                log("Client " + newUser + " connected");
+                log("Client " + newUser + " connected.");
             } else if (msg.type == Message.TYPE_DISCONNECT) {
                 string user = msg.content;
 
@@ -221,8 +239,13 @@ namespace WPFClient
 
         public void freeChannel()
         {
-            // Now we can close it out
-            ChannelServices.UnregisterChannel(tcpChan);
+            try
+            {
+                ChannelServices.UnregisterChannel(tcpChan);
+            } catch (Exception ex)
+            {
+                Console.WriteLine("unable to Unregister Channel");
+            }
         }
 
         public void connect()
@@ -232,7 +255,7 @@ namespace WPFClient
 
             try
             {
-                // init client event proxy and register callback
+                // init event proxy and register callback
                 eventProxy = new EventProxy();
                 eventProxy.MessageArrived += new MessageArrivedEvent(eventProxy_MessageArrived_callback);
 
@@ -278,6 +301,7 @@ namespace WPFClient
 
             connected = false;
         }
+        
         #endregion
     }
 }
