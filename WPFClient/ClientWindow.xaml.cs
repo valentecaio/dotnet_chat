@@ -335,7 +335,7 @@ namespace WPFClient
             } catch (Exception ex)
             {
                 // if client can't contact server, server is down
-                MessageBox.Show("Can't connect to server (" + serverURI + ").");
+                MessageBox.Show("Can't connect to server (" + serverURI + ").\n" + ex.Message);
             }
 
         }
