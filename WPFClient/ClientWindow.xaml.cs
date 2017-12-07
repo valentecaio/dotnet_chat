@@ -36,11 +36,6 @@ namespace WPFClient
         {
             InitializeComponent();
 
-            // register IServerObject services
-            // server URI = tcp://<server ip>:<server port>/<server class>
-            RemotingConfiguration.RegisterWellKnownClientType(
-                new WellKnownClientTypeEntry(typeof(IServerObject), serverURI));
-
             // open a TCP channel to listen
             // this channel may only be closed when finishing app
             openChannel();
@@ -49,32 +44,40 @@ namespace WPFClient
         #endregion
 
         #region UI callbacks
-        
+
+        // get information from configuration text boxes 
+        // and regenerate username and server URI
         private void applyConf()
         {
             this.username = this.tbUsername.Text;
             this.serverURI = "tcp://" + this.tbServerIP.Text + ":" + this.tbServerPort.Text + "/Server";
         }
 
+        // callback for btSend; 
+        // create a message and broadcast it
         private void callback_sendMessage(object sender, RoutedEventArgs e)
         {
             this.sendMessage(this.tbSend.Text);
         }
-        
+
+        // callback for menuConnect and btConfConnect
         private void callback_connect(object sender, RoutedEventArgs e)
         {
-            // it works as a "reconnect button"
+            // it works as a "reconnect"
             // disconnect before connecting with new configurations
             this.disconnect();
             this.applyConf();
             this.connect();
         }
 
+        // callback for menuDisconnect and btConfDisconnect
         private void callback_disconnect(object sender, RoutedEventArgs e)
         {
             this.disconnect();
         }
 
+        // callback for menuQuit;
+        // disconnect and unregister channel before leaving
         private void callback_quit(object sender, RoutedEventArgs e)
         {
             disconnect();
@@ -82,12 +85,16 @@ namespace WPFClient
             Close();
         }
 
+        // callback for menuTestServer and btConfTestServer;
+        // use new informations from configuration boxes to test if server is up
         private void callback_testServer(object sender, RoutedEventArgs e)
         {
             applyConf();
             testConnection();
         }
 
+        // callback for keyDown of tbSend;
+        // when <return> return is pressed, send message
         private void callback_keyDown_send(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
@@ -96,6 +103,8 @@ namespace WPFClient
             }
         }
 
+        // callback for X close button;
+        // disconnect and unregister channel before leaving
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             disconnect();
@@ -108,7 +117,8 @@ namespace WPFClient
 
         // used by showMessage to update UI element outside main thread
         private delegate void appendMessageListView(Message msg);
-
+        
+        // thread-safe method that appends a Message _msg_ to messages listView
         private void appendMessage(Message msg)
         {
             if (!Application.Current.Dispatcher.CheckAccess())
@@ -126,6 +136,7 @@ namespace WPFClient
         // used by updateUsersTable to update UI element outside main thread
         private delegate void updateUserListView(List<string> users);
 
+        // thread-safe method that updates users listView with given _users_ list
         private void updateUsersTable(List<string> users)
         {
             if (!Application.Current.Dispatcher.CheckAccess())
@@ -144,6 +155,7 @@ namespace WPFClient
             }
         }
         
+        // log an information _text_ in client's messages board
         private void log(string text)
         {
             appendMessage(new Message { sender = " ", content = text });
@@ -153,8 +165,10 @@ namespace WPFClient
 
         #region background
 
+        // broadcast a text message with content _text_
         public void sendMessage(string text)
         {
+            // abort if client is disconnected or text is empty
             if (!connected || text.Length==0)
                 return;
 
@@ -166,25 +180,28 @@ namespace WPFClient
             tbSend.Text = "";
         }
 
+        // callback for a message arrival
         public void eventProxy_MessageArrived_callback(Message msg)
         {
+            // treat msg according to type
             if (msg.type == Message.TYPE_TEXT) {
+                // show text messages
                 appendMessage(msg);
             } else if (msg.type == Message.TYPE_CONNECT) {
-                string newUser = msg.content;
+                string user = msg.content;
 
                 // ignore own connect messages
-                if (newUser == this.username)
+                if (user == this.username)
                     return;
 
                 // add new client to userslist
-                this.usersList.Add(newUser);
+                this.usersList.Add(user);
 
                 // update users table
                 updateUsersTable(this.usersList);
 
                 // log message to user
-                log("Client " + newUser + " connected.");
+                log("Client " + user + " connected.");
             } else if (msg.type == Message.TYPE_DISCONNECT) {
                 string user = msg.content;
 
@@ -199,11 +216,13 @@ namespace WPFClient
             }
         }
 
+        // safely open a listenner tcp channel and register it to ChannelServices
         public void openChannel()
         {
             try
             {
                 // create and register TCP channel to listen
+                // server filter level type must be specified so it can trigger events in the client
                 BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
                 BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
                 serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
@@ -220,19 +239,27 @@ namespace WPFClient
             }
         }
 
+        // safely unregister and destroy tcp channel
+        // may only be used when closing app
         public void freeChannel()
         {
             try
             {
                 ChannelServices.UnregisterChannel(tcpChan);
+                tcpChan = null;
             } catch (Exception ex)
             {
-                Console.WriteLine("unable to Unregister Channel");
+                Console.WriteLine("unable to Unregister Channel: " + ex.Message);
             }
         }
 
+        // connect client to system
+        // the tcp listenner channel is not created in this function
+        // if the server can't be reached, a MessageBox is the output
         public void connect()
         {
+            // if client is already connected, job is done
+            // also return if client's username is empty
             if (connected || this.tbUsername.Text == "")
                 return;
 
@@ -252,55 +279,62 @@ namespace WPFClient
                 // refresh users table
                 this.updateUsersTable(this.usersList);
 
-                log("Connected as " + this.username + ".");
-
                 // change status to connected
+                log("Connected as " + this.username + ".");
                 this.connected = true;
             }
             catch (Exception ex)
             {
+                // can't connect, probably because server is down
+                // warn user and return to disconnected status
                 MessageBox.Show("Could not connect: " + ex.Message);
                 connected = false;
             }
         }
 
+        // disconnect client from server
+        // the tcp channel is not closed
         public void disconnect()
         {
+            // if client is already disconnected, job is done
             if (!connected)
                 return;
 
             try
             {
-                // First remove the event
+                // remove client's event handler
                 remoteServer.MessageArrived -= eventProxy.LocallyHandleMessageArrived;
 
-                // broadcast disconnect message
+                // warn server about disconnection
                 remoteServer.Unsubscribe(this.username);
             } catch (Exception ex)
             {
-                Console.WriteLine("error when disconnection: " + ex.ToString());
+                Console.WriteLine("error when disconnecting: " + ex.ToString());
             }
 
             // empty users table
             this.usersList.Clear();
             updateUsersTable(this.usersList);
 
+            // change status
             log("Disconnected.");
-
             connected = false;
         }
 
+        // try to call a test function (Ping) from the server
+        // the output is a MessageBox with serverURI and the result of the request
         public void testConnection()
         {
             try
             {
-                // try to call a function (Ping) on the server
                 IServerObject remoteServer = (IServerObject)Activator.GetObject(typeof(IServerObject), serverURI);
                 remoteServer.Ping();
                 
+                // if client can contact server, server is up
                 MessageBox.Show("The server is up! (" + serverURI + ").");
             } catch (Exception ex)
             {
+                // if client can't contact server, server is down
                 MessageBox.Show("Can't connect to server (" + serverURI + ").");
             }
 

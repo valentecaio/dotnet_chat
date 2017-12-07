@@ -1,6 +1,23 @@
 ﻿using System;
+
 namespace Common
 {
+    /// <summary>
+    /// 
+    /// This class defines the messages that a connected client can send or receive.
+    /// Each Message object has a type, which defines the context of the Message.
+    /// 
+    /// TYPE_TEXT: a text Message;
+    /// content is the text; sender is the username of the client who created the message;
+    /// 
+    /// TYPE_CONNECT: a connection Message. May be sent only by the server;
+    /// content is the username of the new client; sender is empty;
+    /// 
+    /// TYPE_DISCONNECT: a disconnection Message. May be sent only by the server;
+    /// content is the username of the client who left the system; sender is empty;
+    /// 
+    /// </summary>
+
     [Serializable()]
     public class Message
     {

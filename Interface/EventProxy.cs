@@ -1,6 +1,7 @@
 ﻿using Common;
 using RemotingInterface;
 using System;
+
 namespace Interface
 {
     public class EventProxy : MarshalByRefObject
