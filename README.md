@@ -28,7 +28,7 @@ Now you may be able to send messages.
 
 ### Client functions
 
-* Connect to a server on <server-host>:<server port>
+* Connect to a server on given host and port
 * Disconnect from server
 * See online users
 * Test server availability
