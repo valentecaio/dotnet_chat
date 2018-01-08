@@ -5,7 +5,7 @@ That's a windows messenger, written in C# using .NET Remoting library, which con
 
 The client has a WPF user interface, while the Server is a console app.
 
-Dear to RPC, both client and server subprojets share a Interface dynamic library (dll), that's also a subproject.
+Due to RPC protocol, both client and server subprojets share a Interface dynamic library (dll), that's also a subproject.
 
 ## Requirements
 
